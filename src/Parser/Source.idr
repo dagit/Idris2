@@ -11,6 +11,8 @@ import Core.FC
 
 import System.File
 
+import Libraries.Data.DList
+
 %default total
 
 export

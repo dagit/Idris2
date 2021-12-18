@@ -9,6 +9,7 @@ import TTImp.TTImp
 import public Libraries.Text.Parser
 import Data.List
 import Data.List1
+import Libraries.Data.DList
 
 topDecl : OriginDesc -> IndentInfo -> Rule ImpDecl
 -- All the clauses get parsed as one-clause definitions. Collect any

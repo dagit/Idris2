@@ -10,7 +10,7 @@ import Data.List1
 import Data.String
 import Libraries.Data.List.Extra
 import Libraries.Data.String.Extra
-import Data.SnocList
+import Libraries.Data.DList as DL
 
 %hide Data.String.lines
 %hide Data.String.lines'
@@ -32,7 +32,7 @@ record ParserState (container : Type -> Type) where
 ||| This state needs to provide efficient concatenation.
 public export
 ParsingState : Type
-ParsingState = ParserState SnocList
+ParsingState = ParserState DList
 
 ||| This is the final state after parsing. We no longer
 ||| need to support efficient concatenation.
@@ -42,7 +42,7 @@ State = ParserState List
 
 export
 toState : ParsingState -> State
-toState (MkState decs hs) = MkState (asList decs) hs
+toState (MkState decs hs) = MkState (reify decs) hs
 
 -- To help prevent concatenation slow downs, we only
 -- provide Semigroup and Monoid for the efficient
@@ -50,11 +50,11 @@ toState (MkState decs hs) = MkState (asList decs) hs
 export
 Semigroup ParsingState where
   MkState decs1 hs1 <+> MkState decs2 hs2
-    = MkState (decs1 <+> decs2) (hs1 ++ hs2)
+    = MkState (DL.(++) decs1 decs2) (hs1 ++ hs2)
 
 export
 Monoid ParsingState where
-  neutral = MkState [<] []
+  neutral = MkState DL.Nil []
 
 public export
 BRule : Bool -> Type -> Type
@@ -70,11 +70,11 @@ EmptyRule = BRule False
 
 export
 actD : ASemanticDecoration -> EmptyRule ()
-actD s = act (MkState [<s] [])
+actD s = act (MkState (DL.(::) s DL.Nil) [])
 
 export
 actH : String -> EmptyRule ()
-actH s = act (MkState [<] [s])
+actH s = act (MkState DL.Nil [s])
 
 export
 eoi : EmptyRule ()
